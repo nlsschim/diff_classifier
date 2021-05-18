@@ -785,3 +785,47 @@ def feature_plot_3D(dataset, label, features=[0, 1, 2], lvals=['PEG', 'PS'],
         plt.show()
     else:
         plt.savefig(kwargs['fname'], dpi=kwargs['dpi'])
+
+def screeplot(pca_model, **kwargs):
+    """
+    Creates a scree plot of PCA data
+
+    Parameters:
+    -----------
+    pca_model: PCA object
+        PCA object fit on a dataset
+    **kwargs: variable
+        figsize: tuple of int or float
+            Size of output figure
+        linetype: string
+            string representing type of line to plot
+        linewidth: int
+            width of line connecting datapoints
+        xlim: list of float or int
+            X range of plot
+        ylim: list of float or int
+            Y range of plot
+        labelfontsize: int or float
+            font size of X and Y labels
+            
+    Output:
+    ------
+    scree plot figure on matplotlib figure
+    """
+    
+    defaults = {'figsize': (8, 5), 'linetype': 'ro-', 'linewidth': 2, 
+                 'xlim': None, 'ylim': None, 'labelfontsize': 10}
+    
+    for defkey in defaults.keys():
+        if defkey not in kwargs.keys():
+            kwargs[defkey] = defaults[defkey]
+            
+    fig = plt.figure(figsize=kwargs['figsize'])
+    PC_values = np.arange(pca_model.n_components_) + 1
+    plt.plot(PC_values, pca_model.explained_variance_ratio_, kwargs['linetype'], linewidth=kwargs['linewidth'])
+    plt.xlabel('Principal Component Number')
+    plt.ylabel('Explained Variance Ratio', fontsize=kwargs['labelfontsize'])
+    plt.title('Explained Variance per Princial Component', fontsize=kwargs['labelfontsize'])
+    plt.ylim(kwargs['ylim'])
+    plt.xlim(kwargs['xlim'])
+    plt.show()
