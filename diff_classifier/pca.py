@@ -829,3 +829,75 @@ def screeplot(pca_model, **kwargs):
     plt.ylim(kwargs['ylim'])
     plt.xlim(kwargs['xlim'])
     plt.show()
+
+def bi_plot(pcadataset, dataset, **kwargs):
+    """
+    Creates and displays a bi-plot of PCA data
+    
+    Parameters:
+    -----------
+    pcadataset: Bunch object
+        Created using the pca_analysis function. Must contain information about
+        the PCA object model and the PCA components needed for the plot
+    dataset: pandas.DataFrame
+        DataFrame of the original data. Must have the original column names
+    **kwargs: variable
+        figsize: tuple
+            size of the plot
+        dotsize: int
+            size of the dots for the datapoints
+        scatter_alpha: int or float
+            alpha value for the scatterplot datapoints
+        scatter_color: string
+            string represenation for the color of the scatterplot points
+        arrow_color: str
+            string representation for the plotted arrows for each data column
+        arrow_alphha: float or int
+            alpha value for the plotted arrows
+        text_scale: int or float
+            scaling value for the text correspinding to each columns name
+        text_color: string
+            string represenation for the color of the column names
+        text_size: int or float
+            size of displayed column names
+        text_ha: string
+            string for horizontal alignment of column names
+        text_va: string
+            string for vertical alignment of column names
+        
+    Output:
+    -------
+    plots the bi-plot of the PCA data
+    
+    """
+    
+    defaults = {'figsize': (20, 12), 'dotsize': 5, 'scatter_alpha': 0.2, 'scatter_color': 'c', 
+                'arrow_color': 'r', 'arrow_alpha': 0.5, 
+                'text_scale': 1.15, 'text_color': 'b', 'text_size': 7, 
+                'text_ha': 'center', 'text_va': 'center'}
+    
+    for defkey in defaults.keys():
+        if defkey not in kwargs.keys():
+            kwargs[defkey] = defaults[defkey]
+    
+    pcamodel = pcadataset.pcamodel
+    components = pcadataset.pcavals
+    fig = plt.figure(figsize=kwargs['figsize'])
+    score = components.loc[:, :2]
+    labels = list(dataset.columns)
+    coeff = np.transpose(pcamodel.components_[0:2, :])
+    xs = score.loc[:,0]
+    ys = score.loc[:,1]
+    n = coeff.shape[0]
+    scalex = 1.0/(xs.max() - xs.min())
+    scaley = 1.0/(ys.max() - ys.min())
+    plt.scatter(xs*scalex, ys*scaley, s=kwargs['dotsize'], 
+                alpha=kwargs['scatter_alpha'], color=kwargs['scatter_color'])
+    for i in range(n):
+        plt.arrow(0, 0, coeff[i,0], coeff[i,1],color=kwargs['arrow_color'], alpha=kwargs['arrow_alpha'])
+        plt.text(coeff[i,0]* kwargs['text_scale'], coeff[i,1]*kwargs['text_scale'],
+                             labels[i], color=kwargs['text_color'], ha=kwargs['text_ha'],
+                             va=kwargs['text_va'], size=kwargs['text_size'])
+    plt.xlabel("PC{}".format(1))
+    plt.ylabel("PC{}".format(2))
+    plt.show()
